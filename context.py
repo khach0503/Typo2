@@ -79,7 +79,7 @@ def lstToken(lstin):
                     tok.pre = lstin[x-1]
                 lstCtx.append(tok)
     return lstCtx
-    
+"""    
 def fixit(tokenin)
     tokentmp = tokenin
     for x in range(len(tokentmp)):
@@ -95,31 +95,60 @@ def fixit(tokenin)
                 candi = candidate(tokentmp[x].token)
                 if len(candi) > 0 and candi[0] != tokentmp[x].token:
                     tokentmp[x].token = candi[0]
-    return tokentmp
+    return tokentmp"""
 
 def checkerror(tokin):
-    if tokin.token in compnoun:
-        return false
+    tokin.prepre.lower()
+    tokin.pre.lower()
+    tokin.token.lower()
+    tokin.next.lower()
+    tokin.nextnext.lower()
+    biprecount = 0
+    binextcount = 0
+    #if tokin.token in compnoun:
+        #return False
     bipre = tokin.pre + " " + tokin.token
-    biprecount = count(bipre)
     binext = tokin.token + " " + tokin.next
-    binextcount = count(binext)
+    with open("bigram_word.txt") as file:
+        for line in file:
+            x = 0
+            space = 0
+            subword = ""
+            subnum = 0
+            while space < 2:
+                if line[x] != " ":
+                    subword = subword + line[x]
+                    x+=1
+                else:
+                    if space < 1:
+                        space+=1
+                        subword = subword + line[x]
+                        x+=1
+                    else:
+                        space+=1
+                        x+=1
+            subnum = int(line[x:])
+            if bipre == subword:
+                biprecount = subnum
+            if binext == subword:
+                binextcount = subnum
     tri1 = tokin.pre + " " + tokin.token + " " + tokin.next
     tri2 = tokin.prepre + " " + tokin.pre + " " + tokin.token
     tri3 = tokin.token + " " + tokin.next + " " + tokin.nextnext
+    print(str(biprecount) + " " + str(binextcount))
     if tokin.pre == "" and tokin.next == "":
-        return false
+        return False
     if tokin.pre != "" and tokin.next == "" and biprecount < 50:
-        return true
+        return True
     if tokin.pre == "" and tokin.next != "" and binextcount < 50:
-        return true
+        return True
     if tokin.pre != "" and tokin.next != "" and (biprecount < 50 or binextcount < 50):
-        return true
-    return false
-		
+        return True
+    return False
 
-strin = "Xin chào tất cả mọi người. Tôi là ai?"
+strin = "Xin chào a bank tất cả mọi người. Tôi là ai?"
 listWord = StrIn(strin)
 print(listWord)
 listToken = lstToken(listWord)
-print(listToken[8].token)
+print(listToken[2].token)
+print(checkerror(listToken[5]))
