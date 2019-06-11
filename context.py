@@ -1,3 +1,5 @@
+import codecs
+
 class Context:
     prepre = "";
     pre = "";
@@ -79,23 +81,31 @@ def lstToken(lstin):
                     tok.pre = lstin[x-1]
                 lstCtx.append(tok)
     return lstCtx
-"""    
-def fixit(tokenin)
+  
+def fixit(tokenin):
     tokentmp = tokenin
+    amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
+    amtiet = amtietfile.read()
+    dtrfile = codecs.open("bigram.txt", encoding="utf-8")
+    dtr = dtrfile.read()
+    #if (tokentmp[4].token + " ") in amtiet:
+     #   print("yes")
     for x in range(len(tokentmp)):
-        if tokentmp[x].token not in amtiet:
-            if tokentmp[x].token not in dtr and tokentmp[x].token not in tdb:
-                if 2 gram viet hoa:
+        if (tokentmp[x].token + " ") not in amtiet:
+            if tokentmp[x].token not in dtr:
+                bipre = tokentmp[x].pre + " " + tokentmp[x].token
+                binext = tokentmp[x].token + " " + tokentmp[x].next
+                if bipre.isupper() or binext.isupper():
                 else:
-                    candi = candidate(tokentmp[x].token)
+                    candi = candidate(tokentmp[x])
                     if len(candi) > 0 and candi[0] != tokentmp[x].token:
                         tokentmp[x].token = candi[0]
         else:
-            if checkerror(tokentmp[x]) == true:
-                candi = candidate(tokentmp[x].token)
+            if checkerror(tokentmp[x]) == True:
+                candi = candidate(tokentmp[x])
                 if len(candi) > 0 and candi[0] != tokentmp[x].token:
                     tokentmp[x].token = candi[0]
-    return tokentmp"""
+    return tokentmp
 
 def checkerror(tokin):
     tokin.prepre.lower()
@@ -109,7 +119,7 @@ def checkerror(tokin):
         #return False
     bipre = tokin.pre + " " + tokin.token
     binext = tokin.token + " " + tokin.next
-    with open("bigram_word.txt") as file:
+    with codecs.open("bigram_word.txt", "r", encoding="utf8") as file:
         for line in file:
             x = 0
             space = 0
@@ -128,6 +138,7 @@ def checkerror(tokin):
                         space+=1
                         x+=1
             subnum = int(line[x:])
+            #print(subword)
             if bipre == subword:
                 biprecount = subnum
             if binext == subword:
@@ -145,10 +156,36 @@ def checkerror(tokin):
     if tokin.pre != "" and tokin.next != "" and (biprecount < 50 or binextcount < 50):
         return True
     return False
+	
+def candidate(tokin):
+    context = tokin
+    result = []
+    candidates_filter = {}
+    candidates = {}
+    dicCandidateByTransform = {}
+	dicCandidateByTransform[context.token] = 0
+    change_phuam()
+    change_amkep()
+    change_dau()
+	
+    #buoc 1: bien doi tu
+    biendoi = dicCandidateByTransform
+    candidates = filterCandidate(context, biendoi)
+    
+    #buoc 2: bien doi + doi dau
+    if len(candidates) == 0:
+        candidates_filter.clear()
+		
+        #am kep -> doi dau
+        dicCandidateByTransform.clear()
+        dicCandidateByTransform[context.token.lower()] = 0
+        change_amkep();
+        
 
-strin = "Xin chào a bank tất cả mọi người. Tôi là ai?"
-listWord = StrIn(strin)
+stringin = "Xin chào tất cả mọi người. Tôi là ai?"
+listWord = StrIn(stringin)
 print(listWord)
 listToken = lstToken(listWord)
 print(listToken[2].token)
-print(checkerror(listToken[5]))
+print(checkerror(listToken[4]))
+fixit(listToken)
