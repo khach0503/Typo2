@@ -95,8 +95,9 @@ def fixit(tokenin):
             if tokentmp[x].token not in dtr:
                 bipre = tokentmp[x].pre + " " + tokentmp[x].token
                 binext = tokentmp[x].token + " " + tokentmp[x].next
-                if bipre.isupper() or binext.isupper():
-                else:
+                #if bipre.isupper() or binext.isupper():
+                
+                if bipre.isupper() == False and binext.isupper() == False:
                     candi = candidate(tokentmp[x])
                     if len(candi) > 0 and candi[0] != tokentmp[x].token:
                         tokentmp[x].token = candi[0]
@@ -166,7 +167,7 @@ def candidate(tokin):
     candidates_filter = {}
     candidates = {}
     dicCandidateByTransform.clear()
-	dicCandidateByTransform[context.token] = 0
+    dicCandidateByTransform[context.token] = 0
 
     change_phuam()
     change_amkep()
@@ -220,7 +221,7 @@ def candidate(tokin):
             result.append("")
     return result
     
-def change_phuam()
+def change_phuam():
     lstTransform = []
     candidate = ""
     lstTransform.append("s-x:0.1")
@@ -244,10 +245,11 @@ def change_phuam()
     lstTransform.append("k-c:0.5")
     lstTransform.append("o-ô:0.5")
     
-    lst = list(dicCandidateByTransform.keys)
+    lst = list(dicCandidateByTransform.keys())
     for cand in lst:
         for trans in lstTransform:
-            if trans.index("k-c") > -1 and cand.index("kh") > -1:
+            #if trans.index("k-c") > -1 and cand.index("kh") > -1:
+            if "k-c" in trans and "kh" in cand:
                 continue
             score = float(trans.split(":")[1])
             word = trans.split(":")[0].split("-")
@@ -269,7 +271,7 @@ def change_amkep():
     lstTransform.append("ow-ơ:0.05")
     lstTransform.append("uw-ư:0.05")
     
-    lst = list(dicCandidateByTransform.keys)
+    lst = list(dicCandidateByTransform.keys())
     for cand in lst:
         for trans in lstTransform:
             score = float(trans.split(":")[1])
@@ -351,7 +353,7 @@ def change_dau():
     lstTransform.append("ưx-ữ:0.2")
     lstTransform.append("ưj-ự:0.2")
     
-    lst = list(dicCandidateByTransform.keys)
+    lst = list(dicCandidateByTransform.keys())
     for cand in lst:
         for trans in lstTransform:
             score = float(trans.split(":")[1])
@@ -365,25 +367,84 @@ def change_dau():
                     dicCandidateByTransform[candidate] += score
                     
 def filterCandidate(context, lstCandidates):
+    amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
+    amtiet = amtietfile.read()
 
+    candidates_filter1 = {}
+    candidates = {}
+    
+    count_token = countngram(context.token)
+    count_pre_token = countngram2(context.pre.lower() + " " + context.token.lower())
+    count_next_token = countngram2(context.token.lower() + " " + context.next.lower())
+    if count_token == 0:
+        count_token = 1
+    if count_pre_token == 0:
+        count_pre_token = 1
+    if count_next_token == 0:
+        count_next_token = 1
+        
+    max_count_ngram = 0
+    max_pre = 0
+    max_next = 0
+    max_step_transform = 0.0
+    
+    for cand in list(lstCandidates.keys()):
+        if cand not in amtiet:
+            continue
+        cond = False
+        if context.token.lower() != cand.lower():
+            if len(context.pre) > 0 and len(context.next) > 0:
+                if float(countngram(cand)) / count_token >=5:
+                    cond = True
+            if cond == False:
+                if len(context.pre) > 0 and float(countngram2(context.pre.lower() + " " + cand)) / count_pre_token < 2:
+                    continue
+                if len(context.next) > 0 and float(countngram2(cand + " " + context.next.lower())) / count_next_token < 2:
+                    continue
+                    
+     
+    return candidates
+                
                 
     
 def countngram(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
     amtiet = amtietfile.read()
+    if stin not in amtiet:
+        return 0
     index = amtiet.index(stin) + len(stin) + 1
-    ret = amtiet(index)
+    #print(index)
+    ret = amtiet[index]
+    i = index + 1
+    while amtiet[i] in so or amtiet[i] == " ":
+        if amtiet[i] == " ":
+            ret = ""
+            i+=1
+        ret = ret + amtiet[i]
+        i += 1
+    return int(ret)
+
+def countngram2(stin):
+    so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    amtietfile = codecs.open("bigram_word.txt", encoding="utf-8")
+    amtiet = amtietfile.read()
+    if stin not in amtiet:
+        return 0
+    print(stin)
+    index = amtiet.index(stin) + len(stin) + 1
+    ret = amtiet[index]
     i = index + 1
     while amtiet[i] in so:
         ret = ret + amtiet[i]
         i += 1
     return int(ret)
+    
 
-stringin = "Xin chào tất cả mọi người. Tôi là ai?"
+stringin = "Xin trào tất cả mọi người. Tôi là ai?"
 listWord = StrIn(stringin)
 print(listWord)
 listToken = lstToken(listWord)
-print(listToken[2].token)
-print(checkerror(listToken[4]))
+#print(listToken[2].token)
+#print(checkerror(listToken[4]))
 fixit(listToken)
