@@ -402,6 +402,54 @@ def filterCandidate(context, lstCandidates):
                 if len(context.next) > 0 and float(countngram2(cand + " " + context.next.lower())) / count_next_token < 2:
                     continue
                     
+        if context.token.lower() == cand.lower() and countngram(cand) <= 2:
+            continue
+           
+        if (len(context.pre) > 0 and isCompound(context.pre.lower() + " " + cand)) or (len(context.next) > 0 and isCompound(cand + " " + context.next.lower())):
+            if  max_count_ngram < countngram(cand):
+                max_count_ngram = countngram(cand)
+            if  max_pre < countngram2(context.pre.lower() + " " + cand):
+                max_pre = countngram2(context.pre.lower() + " " + cand)
+            if  max_next < countngram2(cand + " " + context.next.lower()):
+                max_next = countngram2(cand + " " + context.next.lower())
+            if  max_step_transform < lstCandidates[cand]:
+                max_step_transform = lstCandidates[cand]
+            candidates_filter1[cand] = lstCandidates[cand]
+            continue
+            
+        if len(context.pre) * len(context.next) == 0:
+            if (float(countngram(cand)) / count_token >= 10 and context.token.lower() != cand.lower()) or (context.token.lower() == cand.lower()):
+                if (isamtiet(context.token) and lstCandidates[cand] <= 0.5) or (isamtiet(context.token) == False):
+                    if  max_count_ngram < countngram(cand):
+                        max_count_ngram = countngram(cand)
+                    if  max_step_transform < lstCandidates[cand]:
+                        max_step_transform = lstCandidates[cand]
+                    candidates_filter1[cand] = lstCandidates[cand]
+        else:
+            if cand != context.token.lower():
+                if len(context.pre) > 0 and countngram2(context.pre.lower() + " " + cand) <= countngram2(context.pre.lower() + " " + context.token.lower()):
+                    continue
+                if len(context.next) > 0 and countngram2(cand + " " + context.next.lower()) <= countngram2(context.token.lower() + " " + context.next.lower()):
+                    continue
+                if len(context.pre) > 0 and len(context.next) > 0:
+                    if countngram(cand) - countngram(context.token.lower()) <= 5:
+                        continue
+            if isamtiet(cand):
+                if  max_count_ngram < countngram(cand):
+                    max_count_ngram = countngram(cand)
+                if  max_step_transform < lstCandidates[cand]:
+                    max_step_transform = lstCandidates[cand]
+                if  max_pre < countngram2(context.pre.lower() + " " + cand):
+                    max_pre = countngram2(context.pre.lower() + " " + cand)
+                if  max_next < countngram2(cand + " " + context.next.lower()):
+                    max_next = countngram2(cand + " " + context.next.lower())
+                candidates_filter1[cand] = lstCandidates[cand]
+                
+    if max_count_ngram * max_step_transform > 0:
+        for cand in list(candidates_filter1.keys()):
+            if isamtiet(cand):
+                score = 
+                    
      
     return candidates
                 
@@ -427,7 +475,7 @@ def countngram(stin):
 
 def countngram2(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-    amtietfile = codecs.open("bigram_word.txt", encoding="utf-8")
+    amtietfile = codecs.open("filteredBi.txt", encoding="utf-8")
     amtiet = amtietfile.read()
     if stin not in amtiet:
         return 0
@@ -439,6 +487,25 @@ def countngram2(stin):
         ret = ret + amtiet[i]
         i += 1
     return int(ret)
+    
+def isCompound(stin):
+    so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    amtietfile = codecs.open("bigram_word.txt", encoding="utf-8")
+    amtiet = amtietfile.read()
+    if stin not in amtiet:
+        return False
+    else:
+        return True
+        
+def isamtiet(stin):
+    so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
+    amtiet = amtietfile.read()
+    if stin not in amtiet:
+        return False
+    else:
+        return True
+    
     
 
 stringin = "Xin trào tất cả mọi người. Tôi là ai?"
