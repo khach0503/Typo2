@@ -99,11 +99,13 @@ def fixit(tokenin):
                 
                 if bipre.isupper() == False and binext.isupper() == False:
                     candi = candidate(tokentmp[x])
+                    print(len(candi))
                     if len(candi) > 0 and candi[0] != tokentmp[x].token:
                         tokentmp[x].token = candi[0]
         else:
             if checkerror(tokentmp[x]) == True:
                 candi = candidate(tokentmp[x])
+                print(len(candi))
                 if len(candi) > 0 and candi[0] != tokentmp[x].token:
                     tokentmp[x].token = candi[0]
     return tokentmp
@@ -147,7 +149,7 @@ def checkerror(tokin):
     tri1 = tokin.pre + " " + tokin.token + " " + tokin.next
     tri2 = tokin.prepre + " " + tokin.pre + " " + tokin.token
     tri3 = tokin.token + " " + tokin.next + " " + tokin.nextnext
-    print(str(biprecount) + " " + str(binextcount))
+    #print(str(biprecount) + " " + str(binextcount))
     if tokin.pre == "" and tokin.next == "":
         return False
     if tokin.pre != "" and tokin.next == "" and biprecount < 50:
@@ -186,7 +188,7 @@ def candidate(tokin):
         dicCandidateByTransform[context.token.lower()] = 0
         change_amkep();
         amkep_dau = change_thaydau(dicCandidateByTransform)
-        for i in amkep_dau.keys:
+        for i in amkep_dau:
             if i not in candidates_filter:
                 candidates_filter[i] = amkep_dau[i]
             else:
@@ -195,7 +197,7 @@ def candidate(tokin):
                     
         #bien doi xoa
         xoa = change_delete(context.token.lower())
-        for i in xoa.keys:
+        for i in xoa:
             if i not in candidates_filter:
                 candidates_filter[i] = xoa[i]
             else:
@@ -388,7 +390,7 @@ def filterCandidate(context, lstCandidates):
     max_next = 0
     max_step_transform = 0.0
     
-    for cand in list(lstCandidates.keys()):
+    for cand in lstCandidates:
         if cand not in amtiet:
             continue
         cond = False
@@ -445,22 +447,128 @@ def filterCandidate(context, lstCandidates):
                     max_next = countngram2(cand + " " + context.next.lower())
                 candidates_filter1[cand] = lstCandidates[cand]
                 
-    if max_count_ngram * max_step_transform > 0:
-        for cand in list(candidates_filter1.keys()):
+    """if max_count_ngram * max_step_transform > 0: #toi day moi tao candidate
+        for cand in candidates_filter1:
             if isamtiet(cand):
-                score = 
+                #score = """
                     
      
     return candidates
+    
+def change_thaydau(lstCands):
+    candidates = {}
+    dictmp = {}
+    
+    for cand in lstCands:
+        dictmp = changeSignWordToDic(cand, lstCands[cand])
+        for tmp in dictmp:
+            if tmp not in candidates:
+                candidates[tmp] = dictmp[tmp]
+    
+    return candidates
+    
+def change_delete(token):
+    lstCandidates = {}
+    tmp = {}
+    
+    allSyl = getAllSyl()
+    for candidate in allSyl:
+        if candidate in lstCandidates:
+            continue
+        
+        tmp = createCandidateByDelete(candidate)
+        if token in tmp:
+            lstCandidates[candidate] = tmp[token]
+    
+    #chieu nguoc lai
+    tmp = createCandidateByDelete(token)
+    for i in tmp:
+        if isamtiet(i) and i not in lstCandidates:
+            lstCandidates[i] = tmp[i]
+            
+    return lstCandidates
+    
+def createCandidateByDelete(token):
+    lstW2 = "á à ả ã ạ ấ ầ ẩ ẫ ậ ắ ằ ẳ ẵ ặ í ì ỉ ĩ ị é è ẻ ẽ ẹ ế ề ể ễ ệ ó ò ỏ õ ọ ố ồ ổ ỗ ộ ớ ờ ở ỡ ợ ú ù ủ ũ ụ ứ ừ ử ữ ự"
+    
+    result = {}
+    
+    for i in range(len(token)):
+        new_str = remove1(i, token)
+        if new_str not in result and len(new_str) > 0:
+            #if lstW2.index(token[i]) >= 0:
+            if token[i] in lstW2:
+                result[new_str] = 2
+            else:
+                result[new_str] = 1
                 
+    return result
+    
+def changeSignWordToDic(token, pre_score = 0.0):
+    d = {}
+    d[token] = 0
+    lst = changeSignWord(token)
+    for i in lst:
+        d[i] = pre_score + 0.8
+    return d
+    
+def changeSignWord(token):
+    lstNewWord = []
+    lstSignW = ["a á à ả ã ạ",
+                "â ấ ầ ẩ ẫ ậ",
+                "ă ắ ằ ẳ ẵ ặ",
+                "i í ì ỉ ĩ ị",
+                "e é è ẻ ẽ ẹ",
+                "ê ế ề ể ễ ệ",
+                "o ó ò ỏ õ ọ",
+                "ô ố ồ ổ ỗ ộ",
+                "ơ ớ ờ ở ỡ ợ",
+                "u ú ù ủ ũ ụ",
+                "ư ứ ừ ử ữ ự"]
+    new_word = ""
+    for c in token:
+        for signs in lstSignW:
+            if c in signs:
+                sign = signs.split(" ")
+                for s in sign:
+                    new_word = token.replace(c, s[0])
+                    if isamtiet(new_word) and new_word != token:
+                        lstNewWord.append(new_word)
+                        
+    return lstNewWord
                 
+def remove1(i, stin):
+    ret = ""
+    ret = stin[:i-1] + stin[i+1:]
+    return ret
+                
+def getAllSyl():
+    ret = ""
+    res = []
+    i = 0
+    so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    with codecs.open("filteredUni.txt", "r", encoding="utf8") as file:
+        for line in file:
+            while line[i] != " ":
+                ret = ret + line[i]
+                i+=1
+            res.append(ret)
+            ret = ""
+            i = 0
+    return res
+            
+    
     
 def countngram(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    phuam = ["ph", "th", "tr", "gi", "d", "ch", "nh", "ng", "ngh", "kh", "g", "gh", "c", "q", "k", "t", "r", "h", "b", "m", "v", "đ", "n", "l", "x", "p", "s"]
     amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
     amtiet = amtietfile.read()
-    if stin not in amtiet:
+    if stin + " " not in amtiet:
         return 0
+    if stin in phuam:
+        return 0
+    #print(stin)
     index = amtiet.index(stin) + len(stin) + 1
     #print(index)
     ret = amtiet[index]
@@ -471,21 +579,24 @@ def countngram(stin):
             i+=1
         ret = ret + amtiet[i]
         i += 1
+        #print("hello")
+    #print(ret)
     return int(ret)
 
 def countngram2(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     amtietfile = codecs.open("filteredBi.txt", encoding="utf-8")
     amtiet = amtietfile.read()
-    if stin not in amtiet:
+    if stin + " " not in amtiet:
         return 0
-    print(stin)
+    #print(stin)
     index = amtiet.index(stin) + len(stin) + 1
     ret = amtiet[index]
     i = index + 1
     while amtiet[i] in so:
         ret = ret + amtiet[i]
         i += 1
+    #print(ret)
     return int(ret)
     
 def isCompound(stin):
@@ -514,4 +625,6 @@ print(listWord)
 listToken = lstToken(listWord)
 #print(listToken[2].token)
 #print(checkerror(listToken[4]))
-fixit(listToken)
+output = fixit(listToken)
+for pri in output:
+    print(pri.token)
