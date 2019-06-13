@@ -99,13 +99,13 @@ def fixit(tokenin):
                 
                 if bipre.isupper() == False and binext.isupper() == False:
                     candi = candidate(tokentmp[x])
-                    print(len(candi))
+                    #print(len(candi))
                     if len(candi) > 0 and candi[0] != tokentmp[x].token:
                         tokentmp[x].token = candi[0]
         else:
             if checkerror(tokentmp[x]) == True:
                 candi = candidate(tokentmp[x])
-                print(len(candi))
+                #print(len(candi))
                 if len(candi) > 0 and candi[0] != tokentmp[x].token:
                     tokentmp[x].token = candi[0]
     return tokentmp
@@ -205,7 +205,7 @@ def candidate(tokin):
                     candidates_filter[i] = xoa[i]
                     
         candidates = filterCandidate(context, candidates_filter)
-        
+    print(len(candidates))
     if len(candidates) > 0 and list(candidates.keys)[0] > 0:
         result.append(list(candidates)[0])
     else:
@@ -213,7 +213,7 @@ def candidate(tokin):
             if countngram(context.token.lower()) == 0:
                 result.append("")
     return result
-    
+    print(len(candidates))
     if len(candidates) > 0 and list(candidates.keys)[0] > 0:
         result.append(list(candidates)[0])
     else:
@@ -587,16 +587,17 @@ def countngram2(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     amtietfile = codecs.open("filteredBi.txt", encoding="utf-8")
     amtiet = amtietfile.read()
+    ret = "0"
     if stin + " " not in amtiet:
         return 0
-    #print(stin)
-    index = amtiet.index(stin) + len(stin) + 1
-    ret = amtiet[index]
-    i = index + 1
+    print(stin)
+    #index = amtiet.index(stin) + len(stin) + 1
+    #ret = amtiet[index]
+    i = 0
     while amtiet[i] in so:
         ret = ret + amtiet[i]
         i += 1
-    #print(ret)
+    print(ret)
     return int(ret)
     
 def isCompound(stin):
@@ -619,7 +620,7 @@ def isamtiet(stin):
     
     
 
-stringin = "Xin trào tất cả mọi người. Tôi là ai?"
+stringin = "Xin trào tất cả mói người. Tôi là người bỉnh thường."
 listWord = StrIn(stringin)
 print(listWord)
 listToken = lstToken(listWord)
