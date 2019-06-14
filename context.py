@@ -206,7 +206,7 @@ def candidate(tokin):
                     
         candidates = filterCandidate(context, candidates_filter)
     #print(len(candidates))
-    if len(candidates) > 0 and list(candidates.keys())[0] > 0:
+    if len(candidates) > 0 and candidates[list(candidates.keys())[0]] > 0:
         result.append(list(candidates)[0])
     else:
         if len(context.pre) + len(context.next) > 0:
@@ -214,7 +214,7 @@ def candidate(tokin):
                 result.append("")
     return result
     #print(len(candidates))
-    if len(candidates) > 0 and list(candidates.keys())[0] > 0:
+    if len(candidates) > 0 and candidates[list(candidates.keys())[0]] > 0:
         result.append(list(candidates)[0])
     else:
         if countngram(context.token.lower()) == 0:
@@ -702,7 +702,7 @@ def scoreCandidateByCompoundWord(context, candidate):
     
     
 
-stringin = "Xin trào tất cả mói người. Tôi là người bỉnh thường."
+stringin = "Xin chafo tất cả mói người. Tôi là người bỉnh thường."
 listWord = StrIn(stringin)
 print(listWord)
 listToken = lstToken(listWord)
