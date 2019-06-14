@@ -449,7 +449,7 @@ def filterCandidate(context, lstCandidates):
                     max_next = countngram2(cand + " " + context.next.lower())
                 candidates_filter1[cand] = lstCandidates[cand]
                 
-    if max_count_ngram * max_step_transform > 0: #toi day moi tao candidate
+    if max_count_ngram * max_step_transform  > 0: #toi day moi tao candidate
         for cand in candidates_filter1:
             if isamtiet(cand):
                 print("hey")
@@ -573,9 +573,9 @@ def countngram(stin):
     amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
     amtiet = amtietfile.read()
     if stin + " " not in amtiet:
-        return 0
+        return 1
     if stin in phuam:
-        return 0
+        return 1
     #print(stin)
     index = amtiet.index(stin) + len(stin) + 1
     #print(index)
@@ -596,10 +596,11 @@ def countngram2(stin):
     amtietfile = codecs.open("filteredBi.txt", encoding="utf-8")
     amtiet = amtietfile.read()
     ret = "0"
+    print(stin)
     if stin + " " not in amtiet:
         print("no no")
-        return 0
-    print(stin)
+        return 1
+    
     index = amtiet.index(stin)
     #ret = amtiet[index]
     i = index
@@ -709,5 +710,17 @@ listToken = lstToken(listWord)
 #print(listToken[2].token)
 #print(checkerror(listToken[4]))
 output = fixit(listToken)
+final = ""
 for pri in output:
     print(pri.token)
+daucau = [",", ".", "?", "!"]
+print(stringin)
+j = 0
+for i in range(len(listWord)):
+    if listWord[i] not in daucau:
+        final = final + " " + output[j].token
+        j+=1
+    else:
+        final = final + listWord[i]
+        
+print(final.strip())
