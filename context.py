@@ -206,7 +206,7 @@ def candidate(tokin):
                     
         candidates = filterCandidate(context, candidates_filter)
     #print(len(candidates))
-    if len(candidates) > 0 and list(candidates.keys)[0] > 0:
+    if len(candidates) > 0 and list(candidates.keys())[0] > 0:
         result.append(list(candidates)[0])
     else:
         if len(context.pre) + len(context.next) > 0:
@@ -214,7 +214,7 @@ def candidate(tokin):
                 result.append("")
     return result
     #print(len(candidates))
-    if len(candidates) > 0 and list(candidates.keys)[0] > 0:
+    if len(candidates) > 0 and list(candidates.keys())[0] > 0:
         result.append(list(candidates)[0])
     else:
         if countngram(context.token.lower()) == 0:
@@ -449,7 +449,7 @@ def filterCandidate(context, lstCandidates):
                     max_next = countngram2(cand + " " + context.next.lower())
                 candidates_filter1[cand] = lstCandidates[cand]
                 
-    if max_count_ngram * max_step_transform * max_pre * max_next > 0: #toi day moi tao candidate
+    if max_count_ngram * max_step_transform > 0: #toi day moi tao candidate
         for cand in candidates_filter1:
             if isamtiet(cand):
                 print("hey")
@@ -600,17 +600,21 @@ def countngram2(stin):
         print("no no")
         return 0
     print(stin)
-    #index = amtiet.index(stin) + len(stin) + 1
+    index = amtiet.index(stin)
     #ret = amtiet[index]
-    i = 0
+    i = index
     kiemtra = True
     while kiemtra == True:
         if amtiet[i] in so:
             ret = ret + amtiet[i]
             i += 1
+            if amtiet[i] not in so:
+                kiemtra = False
+        else:
+            i+=1
     #ret = ret + "0"
     #res = int(ret)/10
-    print(ret)
+    print(int(ret))
     return int(ret)
     
 def isCompound(stin):
