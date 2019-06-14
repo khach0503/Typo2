@@ -205,7 +205,7 @@ def candidate(tokin):
                     candidates_filter[i] = xoa[i]
                     
         candidates = filterCandidate(context, candidates_filter)
-    print(len(candidates))
+    #print(len(candidates))
     if len(candidates) > 0 and list(candidates.keys)[0] > 0:
         result.append(list(candidates)[0])
     else:
@@ -213,7 +213,7 @@ def candidate(tokin):
             if countngram(context.token.lower()) == 0:
                 result.append("")
     return result
-    print(len(candidates))
+    #print(len(candidates))
     if len(candidates) > 0 and list(candidates.keys)[0] > 0:
         result.append(list(candidates)[0])
     else:
@@ -374,6 +374,7 @@ def filterCandidate(context, lstCandidates):
 
     candidates_filter1 = {}
     candidates = {}
+    candidates_new = {}
     
     count_token = countngram(context.token)
     count_pre_token = countngram2(context.pre.lower() + " " + context.token.lower())
@@ -410,6 +411,7 @@ def filterCandidate(context, lstCandidates):
         if (len(context.pre) > 0 and isCompound(context.pre.lower() + " " + cand)) or (len(context.next) > 0 and isCompound(cand + " " + context.next.lower())):
             if  max_count_ngram < countngram(cand):
                 max_count_ngram = countngram(cand)
+                #print("max_count_ngram = " + max_count_ngram)
             if  max_pre < countngram2(context.pre.lower() + " " + cand):
                 max_pre = countngram2(context.pre.lower() + " " + cand)
             if  max_next < countngram2(cand + " " + context.next.lower()):
@@ -447,13 +449,19 @@ def filterCandidate(context, lstCandidates):
                     max_next = countngram2(cand + " " + context.next.lower())
                 candidates_filter1[cand] = lstCandidates[cand]
                 
-    """if max_count_ngram * max_step_transform > 0: #toi day moi tao candidate
+    if max_count_ngram * max_step_transform * max_pre * max_next > 0: #toi day moi tao candidate
         for cand in candidates_filter1:
             if isamtiet(cand):
-                #score = """
+                print("hey")
+                score = evaluation_new(context, cand, candidates_filter1[cand], max_count_ngram, max_pre, max_next, max_step_transform)
+                candidates[cand] = score
+    
+    if len(candidates) > 0:
+        key_max = max(candidates.keys(), key=(lambda k: candidates[k]))
+        candidates_new[key_max] = candidates[key_max]
                     
      
-    return candidates
+    return candidates_new
     
 def change_thaydau(lstCands):
     candidates = {}
@@ -589,14 +597,19 @@ def countngram2(stin):
     amtiet = amtietfile.read()
     ret = "0"
     if stin + " " not in amtiet:
+        print("no no")
         return 0
     print(stin)
     #index = amtiet.index(stin) + len(stin) + 1
     #ret = amtiet[index]
     i = 0
-    while amtiet[i] in so:
-        ret = ret + amtiet[i]
-        i += 1
+    kiemtra = True
+    while kiemtra == True:
+        if amtiet[i] in so:
+            ret = ret + amtiet[i]
+            i += 1
+    #ret = ret + "0"
+    #res = int(ret)/10
     print(ret)
     return int(ret)
     
@@ -604,7 +617,15 @@ def isCompound(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     amtietfile = codecs.open("bigram_word.txt", encoding="utf-8")
     amtiet = amtietfile.read()
-    if stin not in amtiet:
+    if stin + " " not in amtiet:
+        return False
+    else:
+        return True
+        
+def isCompound2(stin):
+    amtietfile = codecs.open("trigram_word.txt", encoding="utf-8")
+    amtiet = amtietfile.read()
+    if stin + " " not in amtiet:
         return False
     else:
         return True
@@ -613,10 +634,67 @@ def isamtiet(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     amtietfile = codecs.open("filteredUni.txt", encoding="utf-8")
     amtiet = amtietfile.read()
-    if stin not in amtiet:
+    if stin + " " not in amtiet:
         return False
     else:
         return True
+        
+def evaluation_new(dcontext, candidate, step_trans, max_count_ngram, max_pre, max_next, max_step_transform):
+    ChiSoBienDoi = 1 - step_trans
+    ChiSoTanSuat = float(countngram(candidate)) / max_count_ngram
+    
+    if len(dcontext.pre) * len(dcontext.next) != 0:
+        pre = float(countngram2(dcontext.pre.lower() + " " + candidate.lower())) / max_pre
+        next = float(countngram2(candidate.lower() + " " + dcontext.next.lower())) / max_next
+        ChiSoTanSuat = (pre + next) / 2
+        
+    ChiSoTuGhep = 0
+    score_candidate = scoreCandidateByCompoundWord(dcontext, candidate)
+    score_context = scoreCandidateByCompoundWord(dcontext, dcontext.token)
+    if score_candidate > score_context:
+        ChiSoTuGhep = 1
+    elif score_candidate < score_context:
+        ChiSoTuGhep = -1
+    else:
+        ChiSoTuGhep = 0
+    
+    if len(dcontext.pre) > 0 and len(dcontext.prepre) > 0 and isCompound(dcontext.prepre.lower() + " " + dcontext.pre.lower()) and isCompound(dcontext.pre.lower() + " " + candidate.lower()):
+        ChiSoTuGhep = 0
+    if len(dcontext.next) > 0 and len(dcontext.nextnext) > 0 and isCompound(dcontext.next.lower() + " " + dcontext.nextnext.lower()) and isCompound(candidate.lower() + " " + dcontext.next.lower()):
+        ChiSoTuGhep = 0
+    
+    return ChiSoTuGhep*0.4 + ChiSoTanSuat*0.32 + ChiSoBienDoi*0.28
+    
+def scoreCandidateByCompoundWord(context, candidate):
+    sum = 0
+    _3SyllComWord1 = context.prepre + " " + context.pre + " " + candidate
+    _3SyllComWord1.strip().lower()
+    
+    _3SyllComWord2 = context.pre + " " + candidate + " " + context.next
+    _3SyllComWord2.strip().lower()
+    
+    _3SyllComWord3 = candidate + " " + context.next + " " + context.nextnext
+    _3SyllComWord3.strip().lower()
+    
+    _2SyllComWord1 = context.pre + " " + candidate
+    _2SyllComWord1.strip().lower()
+    
+    _2SyllComWord2 = candidate + " " + context.next
+    _2SyllComWord2.strip().lower()
+    
+    if len(context.prepre) > 0 and len(context.pre) > 0 and isCompound2(_3SyllComWord1):
+        sum+=1
+    if len(context.pre) > 0 and len(context.next) > 0 and isCompound2(_3SyllComWord2):
+        sum+=1
+    if len(context.next) > 0 and len(context.nextnext) > 0 and isCompound2(_3SyllComWord2):
+        sum+=1
+    if len(context.pre) > 0 and isCompound(_2SyllComWord1):
+        sum+=1
+    if len(context.next) > 0 and isCompound(_2SyllComWord2):
+        sum+=1
+        
+    return sum
+    
     
     
 
