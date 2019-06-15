@@ -122,7 +122,7 @@ def checkerror(tokin):
         #return False
     bipre = tokin.pre + " " + tokin.token
     binext = tokin.token + " " + tokin.next
-    with codecs.open("bigram_word.txt", "r", encoding="utf8") as file:
+    """with codecs.open("bigram_word.txt", "r", encoding="utf8") as file:
         for line in file:
             x = 0
             space = 0
@@ -145,7 +145,9 @@ def checkerror(tokin):
             if bipre == subword:
                 biprecount = subnum
             if binext == subword:
-                binextcount = subnum
+                binextcount = subnum"""
+    biprecount = countngram2(bipre)
+    binextcount = countngram2(binext)
     tri1 = tokin.pre + " " + tokin.token + " " + tokin.next
     tri2 = tokin.prepre + " " + tokin.pre + " " + tokin.token
     tri3 = tokin.token + " " + tokin.next + " " + tokin.nextnext
@@ -564,8 +566,7 @@ def getAllSyl():
             ret = ""
             i = 0
     return res
-            
-    
+
     
 def countngram(stin):
     so = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -703,7 +704,7 @@ def scoreCandidateByCompoundWord(context, candidate):
     
     
 
-stringin = "Ứng dujng kiêrm lỗi chisnh tả tiệng Việt."
+stringin = "Bạn đasnh giá sản phẫm cho mịnh nhé."
 listWord = StrIn(stringin)
 print(listWord)
 listToken = lstToken(listWord)
