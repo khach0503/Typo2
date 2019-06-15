@@ -703,7 +703,7 @@ def scoreCandidateByCompoundWord(context, candidate):
     
     
 
-stringin = "Xin chafo tất cả mói người. Tôi là người bỉnh thường."
+stringin = "Ứng dujng kiêrm lỗi chisnh tả tiệng Việt."
 listWord = StrIn(stringin)
 print(listWord)
 listToken = lstToken(listWord)
@@ -714,7 +714,7 @@ final = ""
 for pri in output:
     print(pri.token)
 daucau = [",", ".", "?", "!"]
-print(stringin)
+print("Input: " + stringin)
 j = 0
 for i in range(len(listWord)):
     if listWord[i] not in daucau:
@@ -723,4 +723,4 @@ for i in range(len(listWord)):
     else:
         final = final + listWord[i]
         
-print(final.strip())
+print("Output: " + final.strip())
